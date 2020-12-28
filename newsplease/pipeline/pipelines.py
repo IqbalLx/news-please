@@ -331,9 +331,14 @@ class ExtractedInformationStorage(object):
     def convert_to_class(item):
         news_article = NewsArticle()
         news_article.authors = item['authors']
-        news_article.date_download = ExtractedInformationStorage.datestring_to_date(item['date_download'])
-        news_article.date_modify = ExtractedInformationStorage.datestring_to_date(item['date_modify'])
-        news_article.date_publish = ExtractedInformationStorage.datestring_to_date(item['date_publish'])
+        # news_article.date_download = ExtractedInformationStorage.datestring_to_date(item['date_download'])
+        # news_article.date_modify = ExtractedInformationStorage.datestring_to_date(item['date_modify'])
+        # news_article.date_publish = ExtractedInformationStorage.datestring_to_date(item['date_publish'])
+        
+        news_article.date_download = item['date_download']
+        news_article.date_modify = item['date_modify']
+        news_article.date_publish = item['date_publish']
+
         news_article.description = item['description']
         news_article.filename = item['filename']
         news_article.image_url = item['image_url']
