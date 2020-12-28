@@ -75,7 +75,7 @@ class NewsPlease:
         item['local_path'] = None
         item['filename'] = filename
         item['download_date'] = download_date
-        item['modified_date'] = None
+        item['modified_date'] = download_date
         item = extractor.extract(item)
 
         tmp_article = ExtractedInformationStorage.extract_relevant_info(item)

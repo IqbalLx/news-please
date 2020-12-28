@@ -11,4 +11,6 @@ news-please.iml
 venv/
 
 .vscode/*
-
+dummy_data
+build
+explore.ipynb

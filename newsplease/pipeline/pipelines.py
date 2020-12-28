@@ -320,6 +320,9 @@ class ExtractedInformationStorage(object):
     @staticmethod
     def datestring_to_date(text):
         if text:
+            if text.__class__.__name__ == 'datetime':
+                return text
+            
             return dateparser.parse(text)
         else:
             return None
