@@ -291,6 +291,7 @@ class ExtractedInformationStorage(object):
         :param item:
         :return:
         """
+        # print(f"Item in extract relevan: {item}\n")
         article = {
             'authors': item['article_author'],
             'date_download': item['download_date'],
@@ -308,13 +309,16 @@ class ExtractedInformationStorage(object):
             'maintext': item['article_text'],
             'url': item['url']
         }
+        # print(article)
 
         # clean values
         for key in article:
             value = article[key]
             if isinstance(value, str) and not value:
+                # print(f"{key} is set to None")
                 article[key] = None
 
+        # print(f"\nReturned: {article}")
         return article
 
     @staticmethod

@@ -46,6 +46,7 @@ newsplease/helper_classes/sub_classes/__init__.py
 newsplease/helper_classes/sub_classes/heuristics_manager.py
 newsplease/pipeline/__init__.py
 newsplease/pipeline/pipelines.py
+newsplease/pipeline/pitech.py
 newsplease/pipeline/extractor/__init__.py
 newsplease/pipeline/extractor/article_candidate.py
 newsplease/pipeline/extractor/article_extractor.py
