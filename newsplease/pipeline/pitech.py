@@ -55,11 +55,11 @@ class DateModifiedExtractor:
         YEARS = 10
         date_limit = timedelta(days=YEARS*365)
 
-        print(publish_date)
-        print(modified_date)
-        print("="*5)
-        print(type(publish_date))
-        print(type(modified_date))
+        # print(publish_date)
+        # print(modified_date)
+        # print("="*5)
+        # print(type(publish_date))
+        # print(type(modified_date))
         
         
         if modified_date < publish_date - date_limit:
