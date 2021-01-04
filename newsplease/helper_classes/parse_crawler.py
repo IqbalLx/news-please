@@ -80,6 +80,7 @@ class ParseCrawler(object):
         article['article_author'] = 'NULL'
         article['article_publish_date'] = 'NULL'
         article['article_language'] = 'NULL'
+        article['entities'] = 'NULL'
         return article
 
     @staticmethod

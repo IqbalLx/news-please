@@ -15,6 +15,7 @@ newsplease/__init__.py
 newsplease/__main__.py
 newsplease/config.py
 newsplease/helper.py
+newsplease/prosa_creds.json
 newsplease/single_crawler.py
 newsplease/config/config.cfg
 newsplease/config/config_lib.cfg

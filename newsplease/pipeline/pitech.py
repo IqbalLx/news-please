@@ -1,4 +1,6 @@
 import json
+import requests
+import importlib.resources
 from bs4 import BeautifulSoup
 from copy import deepcopy
 from datetime import timedelta
@@ -31,7 +33,7 @@ class KompasArticleExtractor:
     
     def process_item(self, item, spider):
         is_kompas = KompasArticleExtractor.check_if_kompas(item['article_author'])
-        if is_kompas and item['article_text'] is None:
+        if is_kompas:
             # print(f"{item['source_domain']} is kompas")
             article_text = item['spider_response'].xpath("//*[@class='read__content']").extract()
             article_text = ' '.join(article_text)
@@ -118,5 +120,36 @@ class DateModifiedExtractor:
                 item['modified_date'] = item['article_publish_date']
         
         return item
+
+
+class NamedEntityExtractor:
+    def __init__(self):
+        with importlib.resources.path("newsplease", "prosa_creds.json") as creds_path:
+            with open(creds_path, 'r') as creds:
+                creds = json.load(creds)
     
+        self.headers = {
+            **creds,
+            'Content-Type': 'application/json'
+        }
     
+    def request(self, text):
+        data = {
+            "version": "v2",
+            "text": text
+        }
+
+        repsonse = requests.post("https://api.prosa.ai/v1/entities",\
+                                    headers=self.headers, data=json.dumps(data))
+        entities = repsonse.json().get("entities")
+
+        return entities
+    
+    def process_item(self, item, spider):
+        text = item['article_title'] + item['article_text']
+        entities = self.request(text)
+
+        item['entities'] = entities
+        
+        return item
+        

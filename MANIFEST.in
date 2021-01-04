@@ -4,3 +4,4 @@ include newsplease/config/sitelist.hjson
 include LICENSE.txt
 include README.md
 include requirements.txt
+include newsplease/prosa_creds.json
