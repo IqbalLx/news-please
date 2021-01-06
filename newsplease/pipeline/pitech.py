@@ -147,9 +147,35 @@ class NamedEntityExtractor:
     
     def process_item(self, item, spider):
         text = item['article_title'] + item['article_text']
-        entities = self.request(text)
+
+        entities = None
+        try:
+            entities = self.request(text)
+        except:
+            pass
 
         item['entities'] = entities
         
         return item
         
+
+class BrokenPipeline:
+    def __init__(self):
+        pass
+
+    def process_item(self, item, spider):
+        raise ValueError("This pipeline is mean to be Broken!")
+
+        return item
+
+
+class CountCommentExtractor:
+    def __init__(self):
+        pass
+    
+    def get_count_comment(self):
+        pass
+
+    def process_item(self, item, spider):
+        
+        return item
