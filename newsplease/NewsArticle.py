@@ -18,6 +18,8 @@ class NewsArticle(object):
     title_page = None
     title_rss = None
     url = None
+    entities = None
+    count_comment = None
 
     def get_serializable_dict(self):
         """
@@ -51,5 +53,7 @@ class NewsArticle(object):
             'title': self.title,
             'title_page': self.title_page,
             'title_rss': self.title_rss,
-            'url': self.url
+            'url': self.url,
+            'entities': self.entities,
+            'count_comment': self.count_comment
         }

@@ -1,3 +1,4 @@
+import re
 import json
 import requests
 import importlib.resources
@@ -14,6 +15,9 @@ except ImportError:
 from .extractor.cleaner import Cleaner
 
 cleaner = Cleaner()
+
+# to improve performance, regex statements are compiled only once per module
+re_digits = re.compile(r'\d+')
 
 class KompasArticleExtractor:
     def __init__(self):
@@ -146,7 +150,7 @@ class NamedEntityExtractor:
         return entities
     
     def process_item(self, item, spider):
-        text = item['article_title'] + item['article_text']
+        text = item.get('article_title', '') + item.get('article_text', '')
 
         entities = None
         try:
@@ -173,9 +177,36 @@ class CountCommentExtractor:
     def __init__(self):
         pass
     
-    def get_count_comment(self):
-        pass
+    @staticmethod
+    def _ensure_int(count_comment):
+        if isinstance(count_comment, int):
+            return count_comment
+        else:
+            count_comment = re.search(re_digits, count_comment).group(0)
+            count_comment = int(count_comment)
+            return count_comment
+
+    def _extract_from_div(self, body):
+        count_comment = None
+        possible_classes = [
+            "total_comment",
+            "share-box"
+        ]
+
+        for class_name in possible_classes:
+            comment_div = body.xpath(f"//div[contains(@class, '{class_name}')]").extract_first()
+            if comment_div is not None:
+                count_comment = cleaner.delete_tags(comment_div)
+                return count_comment
+        
+        return count_comment
+
 
     def process_item(self, item, spider):
+        count_comment = self._extract_from_div(item['spider_response'])
+        if count_comment is not None:
+            count_comment = self._ensure_int(count_comment)
         
+            item['count_comment'] = count_comment
+
         return item

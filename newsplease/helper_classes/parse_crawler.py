@@ -53,7 +53,7 @@ class ParseCrawler(object):
                                   time.gmtime(time.time()))
 
         relative_local_path = self.helper.savepath_parser \
-            .get_savepath(response.url)
+            .get_savepath(response.meta.get('original_url', response.url))
 
         # Instantiate the crawler item class defined in the configuration
         article = self.helper.crawler_item_class()
@@ -65,7 +65,7 @@ class ParseCrawler(object):
         article['modified_date'] = timestamp
         article['download_date'] = timestamp
         article['source_domain'] = source_domain.encode("utf-8")
-        article['url'] = response.url
+        article['url'] = response.meta.get('original_url', response.url)
         article['html_title'] = response.selector.xpath('//title/text()') \
             .extract_first().encode("utf-8")
         if rss_title is None:
@@ -81,6 +81,7 @@ class ParseCrawler(object):
         article['article_publish_date'] = 'NULL'
         article['article_language'] = 'NULL'
         article['entities'] = 'NULL'
+        article['count_comment'] = 'NULL'
         return article
 
     @staticmethod

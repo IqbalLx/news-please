@@ -44,7 +44,7 @@ class NewsPlease:
         download_date = warc_record.rec_headers.get_header('WARC-Date')
         article = NewsPlease.from_html(html, url=url, download_date=download_date)
         return article
-
+    
     @staticmethod
     def from_html(html, url=None, download_date=None):
         """
@@ -77,7 +77,7 @@ class NewsPlease:
         item['download_date'] = download_date
         item['modified_date'] = download_date
         item = extractor.extract(item)
-
+        
         tmp_article = ExtractedInformationStorage.extract_relevant_info(item)
         final_article = ExtractedInformationStorage.convert_to_class(tmp_article)
         return final_article

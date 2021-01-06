@@ -32,7 +32,8 @@ class Download(scrapy.Spider):
                 'splash': {
                     'endpoint': 'render.html',
                     'args': {'wait': 0.5}
-                }
+                },
+                'original_url': url
             })
 
     
@@ -45,9 +46,10 @@ class Download(scrapy.Spider):
         if not self.helper.parse_crawler.content_type(response):
             return
 
+        self.log.error(f"Original url: {response.meta.get('original_url')}")
         yield self.helper.parse_crawler.pass_to_pipeline(
             response,
-            self.helper.url_extractor.get_allowed_domain(response.url)
+            self.helper.url_extractor.get_allowed_domain(response.meta.get("original_url"))
         )
 
     @staticmethod

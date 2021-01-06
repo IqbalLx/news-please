@@ -44,3 +44,5 @@ class NewscrawlerItem(scrapy.Item):
     article_language = scrapy.Field()
     # Extracted entities of the article
     entities = scrapy.Field()
+    # Extracted comment count of the article
+    count_comment = scrapy.Field()
