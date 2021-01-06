@@ -191,6 +191,7 @@ class SingleCrawler(object):
         :param str url: the url this crawler is supposed to be loaded with
         :rtype: crawler-class or None
         """
+        self.log.error(f"crawler input: {crawler}")
         checked_crawlers = []
         while crawler is not None and crawler not in checked_crawlers:
             checked_crawlers.append(crawler)
@@ -200,8 +201,9 @@ class SingleCrawler(object):
                 if callable(supports_site):
                     try:
                         crawler_supports_site = supports_site(url)
+                        self.log.error(f"support_site: {crawler_supports_site}")
                     except Exception as e:
-                        self.log.info(f'Crawler not supported due to: {str(e)}',
+                        self.log.error(f'Crawler not supported due to: {str(e)}',
                                       exc_info=True)
                         crawler_supports_site = False
 

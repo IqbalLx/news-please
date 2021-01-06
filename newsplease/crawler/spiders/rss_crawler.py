@@ -37,9 +37,20 @@ class RssCrawler(scrapy.Spider):
 
         self.ignored_allowed_domain = self.helper.url_extractor \
             .get_allowed_domain(url)
-        self.start_urls = [self.helper.url_extractor.get_start_url(url)]
+        self.start_urls = [url] # [self.helper.url_extractor.get_start_url(url)]
 
         super(RssCrawler, self).__init__(*args, **kwargs)
+
+
+    def start_requests(self):
+        for url in self.start_urls:
+            callback_fn = self.parse
+            if "rss://" in url:
+                url = url.replace("rss://", "https://")
+                callback_fn = self.rss_parse
+
+            yield scrapy.Request(url, callback_fn)
+    
 
     def parse(self, response):
         """
@@ -88,6 +99,7 @@ class RssCrawler(scrapy.Spider):
     def supports_site(url):
         """
         Rss Crawler are supported if by every site containing an rss feed.
+        But if it already an rss feed, immediately say True
 
         Determines if this crawler works on the given url.
 
@@ -95,6 +107,9 @@ class RssCrawler(scrapy.Spider):
         :return bool: Determines wether this crawler work on the given url
         """
 
+        if "rss://" in url:
+            return True
+        
         # Follow redirects
         opener = urllib2.build_opener(urllib2.HTTPRedirectHandler)
         url = UrlExtractor.url_to_request_with_agent(url)

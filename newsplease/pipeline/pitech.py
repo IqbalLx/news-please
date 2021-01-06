@@ -119,4 +119,20 @@ class DateModifiedExtractor:
         
         return item
     
-    
+
+class BrokenPipeline:
+    def __init__(self):
+        pass
+
+    def process_item(self, item, spider):
+        raise ValueError("This pipeline is mean to be Broken!")
+
+        return item
+
+
+class CountCommentExtractor:
+    def __init__(self):
+        pass
+
+    def process_item(self, item, spider):
+        return item
