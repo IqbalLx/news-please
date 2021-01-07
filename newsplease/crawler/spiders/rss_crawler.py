@@ -70,14 +70,7 @@ class RssCrawler(scrapy.Spider):
         for item in response.xpath('//item'):
             for url in item.xpath('link/text()').extract():
                 yield scrapy.Request(url, lambda resp: self.article_parse(
-                    resp, item.xpath('title/text()').extract()[0]), 
-                    meta={
-                        'splash': {
-                            'endpoint': 'render.html',
-                            'args': {'wait': 0.5}
-                        },
-                        'original_url': url
-            })
+                    resp, item.xpath('title/text()').extract()[0]))
 
     def article_parse(self, response, rss_title=None):
         """
