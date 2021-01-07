@@ -1,6 +1,8 @@
 import logging
 
 import scrapy
+from scrapy.spiders.sitemap import iterloc, regex
+from scrapy.utils.sitemap import Sitemap, sitemap_urls_from_robots
 
 from ...helper_classes.url_extractor import UrlExtractor
 
@@ -33,6 +35,37 @@ class SitemapCrawler(scrapy.spiders.SitemapSpider):
 
         super(SitemapCrawler, self).__init__(*args, **kwargs)
 
+    def _parse_sitemap(self, response):
+        if response.url.endswith('/robots.txt'):
+            for url in sitemap_urls_from_robots(response.text, base_url=response.url):
+                yield scrapy.Request(url, callback=self._parse_sitemap)
+        else:
+            body = self._get_sitemap_body(response)
+            if body is None:
+                # logger.warning("Ignoring invalid sitemap: %(response)s",
+                            #    {'response': response}, extra={'spider': self})
+                return
+
+            s = Sitemap(body)
+            it = self.sitemap_filter(s)
+
+            if s.type == 'sitemapindex':
+                for loc in iterloc(it, self.sitemap_alternate_links):
+                    if any(x.search(loc) for x in self._follow):
+                        yield scrapy.Request(loc, callback=self._parse_sitemap)
+            elif s.type == 'urlset':
+                for loc in iterloc(it, self.sitemap_alternate_links):
+                    for r, c in self._cbs:
+                        if r.search(loc):
+                            yield scrapy.Request(loc, callback=c, meta={
+                                'splash': {
+                                    'endpoint': 'render.html',
+                                    'wait': 0.5
+                                },
+                                'original_url': loc
+                            })
+                            break
+    
     def parse(self, response):
         """
         Checks any given response on being an article and if positiv,

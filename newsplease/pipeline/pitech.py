@@ -196,7 +196,10 @@ class CountCommentExtractor:
         for class_name in possible_classes:
             comment_div = body.xpath(f"//div[contains(@class, '{class_name}')]").extract_first()
             if comment_div is not None:
-                count_comment = cleaner.delete_tags(comment_div)
+                comment_candidate = cleaner.delete_tags(comment_div)
+                if comment_candidate:
+                    count_comment = comment_candidate
+                
                 return count_comment
         
         return count_comment
