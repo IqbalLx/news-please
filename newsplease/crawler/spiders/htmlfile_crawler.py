@@ -90,4 +90,7 @@ class HtmlFileCrawler(scrapy.Spider):
             else:
                 raise ValueError(f"format {url} is wrong, make sure use either file:// or root://")
         
+            if not supported:
+                raise FileNotFoundError(f"{url} not exists in system")
+        
         return supported
