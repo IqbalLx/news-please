@@ -10,6 +10,7 @@ re_starting_whitespc = re.compile(r'^[ \t\n\r\f]*')
 re_multi_spc_tab = re.compile(r'[ \t]+(?=([ \t]))')
 re_double_newline = re.compile(r'[ \n]+(?=(\n))')
 re_ending_spc_newline = re.compile(r'[ \n]*$')
+re_spc_everywhere = re.compile("[\r\t\f]")
 
 
 class Cleaner:
@@ -38,6 +39,8 @@ class Cleaner:
         :param arg: A string, the string which shell be cleaned
         :return: A string, the cleaned string
         """
+        # Delete unnecessary whitespace all over the string
+        arg = re.sub(re_spc_everywhere, '', arg)
         # Deletes whitespaces after a newline
         arg = re.sub(re_newline_spc, '', arg)
         # Deletes every whitespace, tabulator, newline at the beginning of the string

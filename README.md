@@ -59,6 +59,7 @@ $ pip3 install news-please
 From source:
 ```
 git clone git@github.com:IqbalLx/news-please.git
+sudo apt-get install python3-dev python3-pip libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libssl-dev                             #if fresh install OS
 make install                                      #install all requirements first
 make                                              #build
 ```

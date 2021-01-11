@@ -24,7 +24,10 @@ class MissingArticleExtractor:
     def __init__(self):
         self.possible_sites = {
             "kompas.com": self._extract_kompas,
-            "cnbcindonesia.com": self._extract_cnbc
+            "cnbcindonesia.com": self._extract_cnbc,
+            "antaranews.com": self._extract_antara,
+            "tempo.co": self._extract_tempo,
+            "kumparan.com": self._extract_kumparan
         }
 
     def check_site(self, url):
@@ -35,11 +38,32 @@ class MissingArticleExtractor:
         return False, None
     
     @staticmethod
-    def _extract_kompas(item):
-        article_text = item['spider_response'].xpath("//*[@class='read__content']").extract()
+    def _extract_by_xpath(item, xpath):
+        article_text = item['spider_response'].xpath(xpath).extract()
         article_text = ' '.join(article_text)
         article_text = cleaner.do_cleaning(article_text)
         item['article_text'] = article_text
+        return item
+    
+    @staticmethod
+    def _extract_kompas(item):
+        item = MissingArticleExtractor._extract_by_xpath(item, xpath="//*[@class='read__content']")
+        return item
+    
+    @staticmethod
+    def _extract_antara(item):
+        item = MissingArticleExtractor._extract_by_xpath(item, xpath="//div[contains(@class, 'post-content')]")
+        return item
+    
+    @staticmethod
+    def _extract_tempo(item):
+        item = MissingArticleExtractor._extract_by_xpath(item, xpath="//div[@itemprop='articleBody']")
+        return item
+    
+    @staticmethod
+    def _extract_kumparan(item):
+        item = MissingArticleExtractor._extract_by_xpath(item, xpath="//div[contains(@class, 'mlPYL')]")
+        item['article_text'] = item['article_text'].replace('ADVERTISEMENT', ' ')
         return item
     
     @staticmethod
