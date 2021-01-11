@@ -71,16 +71,9 @@ class RssCrawler(scrapy.Spider):
             for url in item.xpath('link/text()').extract():
                 if "kompas" in url:
                     url += "?page=all#page"
-                    
+
                 yield scrapy.Request(url, lambda resp: self.article_parse(
-                    resp, item.xpath('title/text()').extract()[0]), 
-                    meta={
-                        'splash': {
-                            'endpoint': 'render.html',
-                            'args': {'wait': 0.5}
-                        },
-                        'original_url': url
-            })
+                    resp, item.xpath('title/text()').extract()[0]))
 
     def article_parse(self, response, rss_title=None):
         """
