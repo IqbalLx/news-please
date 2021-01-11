@@ -28,6 +28,9 @@ class Download(scrapy.Spider):
     
     def start_requests(self):
         for url in self.start_urls:
+            if "kompas" in url:
+                    url += "?page=all#page"
+                    
             yield scrapy.Request(url, self.parse, meta={
                 'splash': {
                     'endpoint': 'render.html',

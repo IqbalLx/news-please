@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from copy import deepcopy
 from datetime import timedelta
 from dateutil.parser import parse
+from newspaper import Article
 
 try:
     import urllib.request as urllib2
@@ -19,30 +20,49 @@ cleaner = Cleaner()
 # to improve performance, regex statements are compiled only once per module
 re_digits = re.compile(r'\d+')
 
-class KompasArticleExtractor:
+class MissingArticleExtractor:
     def __init__(self):
-        pass
+        self.possible_sites = {
+            "kompas.com": self._extract_kompas,
+            "cnbcindonesia.com": self._extract_cnbc
+        }
 
-    @staticmethod
-    def check_if_kompas(authors):
-        if isinstance(authors, list):
-            for author in authors:
-                if 'kompas' in author.lower().strip():
-                    return True
-        else:
-            if 'kompas' in authors.lower().strip():
-                return True
+    def check_site(self, url):
+        for site in self.possible_sites:
+            if site in url:
+                return True, site
         
-        return False
+        return False, None
     
+    @staticmethod
+    def _extract_kompas(item):
+        article_text = item['spider_response'].xpath("//*[@class='read__content']").extract()
+        article_text = ' '.join(article_text)
+        article_text = cleaner.do_cleaning(article_text)
+        item['article_text'] = article_text
+        return item
+    
+    @staticmethod
+    def _extract_cnbc(item):
+        multi_pages_urls = item['spider_response'].xpath("//div[@class='dropdown_menu']/a/@href") \
+                                                    .extract()[1:]
+        
+        if multi_pages_urls:
+            all_article_text = item['article_text']
+            for multi_pages_url in multi_pages_urls:
+                cnbc = Article(multi_pages_url)
+                cnbc.download()
+                cnbc.parse()
+                all_article_text += cnbc.text
+            
+            item['article_text'] = all_article_text
+
+        return item
+
     def process_item(self, item, spider):
-        is_kompas = KompasArticleExtractor.check_if_kompas(item['article_author'])
-        if is_kompas:
-            # print(f"{item['source_domain']} is kompas")
-            article_text = item['spider_response'].xpath("//*[@class='read__content']").extract()
-            article_text = ' '.join(article_text)
-            article_text = cleaner.do_cleaning(article_text)
-            item['article_text'] = article_text
+        is_missing, site = self.check_site(item['url'])
+        if is_missing:
+            item = self.possible_sites[site](item)
 
         return item
 
@@ -150,7 +170,15 @@ class NamedEntityExtractor:
         return entities
     
     def process_item(self, item, spider):
-        text = item.get('article_title', '') + item.get('article_text', '')
+        article_title = item.get('article_title')
+        if article_title is None:
+            article_title = ''
+        
+        article_text = item.get('article_text')
+        if article_text is None:
+            article_text = ''
+        
+        text = article_title + article_text
 
         entities = None
         try:

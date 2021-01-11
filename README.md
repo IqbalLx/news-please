@@ -56,6 +56,13 @@ news-please runs on Python 3.5+.
 $ pip3 install news-please
 ```
 
+From source:
+```
+git clone git@github.com:IqbalLx/news-please.git
+make install                                      #install all requirements first
+make                                              #build
+```
+
 ### Use within your own code (as a library)
 You can access the core functionality of news-please, i.e. extraction of semi-structured information from one or more news articles, in your own code by using news-please in library mode. If you want to use news-please's full website extraction (given only the root URL) or continuous crawling mode (using RSS), you'll need to use the CLI mode.
 ```python

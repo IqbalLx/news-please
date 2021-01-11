@@ -57,6 +57,9 @@ class SitemapCrawler(scrapy.spiders.SitemapSpider):
                 for loc in iterloc(it, self.sitemap_alternate_links):
                     for r, c in self._cbs:
                         if r.search(loc):
+                            if "kompas" in loc:
+                                loc += "?page=all#page"
+                                
                             yield scrapy.Request(loc, callback=c, meta={
                                 'splash': {
                                     'endpoint': 'render.html',

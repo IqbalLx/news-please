@@ -69,6 +69,9 @@ class RssCrawler(scrapy.Spider):
         """
         for item in response.xpath('//item'):
             for url in item.xpath('link/text()').extract():
+                if "kompas" in url:
+                    url += "?page=all#page"
+                    
                 yield scrapy.Request(url, lambda resp: self.article_parse(
                     resp, item.xpath('title/text()').extract()[0]), 
                     meta={
