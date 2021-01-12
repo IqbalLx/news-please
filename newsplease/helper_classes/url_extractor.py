@@ -185,10 +185,18 @@ class UrlExtractor(object):
         """
         url_root_ext = os.path.splitext(url)
 
+        # print(f"DEBUG: url_root_ext - {url_root_ext}")
+        url_name = ''
         if len(url_root_ext[1]) <= MAX_FILE_EXTENSION_LENGTH:
-            return os.path.split(url_root_ext[0])[1]
+            url_name = os.path.split(url_root_ext[0])[1]
         else:
-            return os.path.split(url)[1]
+            url_name = os.path.split(url)[1]
+        
+        if url_name == '':
+            url_name = url.split('/')[-2]
+        
+        return url_name
+
 
     @staticmethod
     def url_to_request_with_agent(url):

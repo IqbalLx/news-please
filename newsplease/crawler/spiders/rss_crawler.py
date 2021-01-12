@@ -35,8 +35,8 @@ class RssCrawler(scrapy.Spider):
 
         self.original_url = url
 
-        self.ignored_allowed_domain = self.helper.url_extractor \
-            .get_allowed_domain(url)
+        # self.ignored_allowed_domain = self.helper.url_extractor \
+        #     .get_allowed_domain(url)
         self.start_urls = [url] # [self.helper.url_extractor.get_start_url(url)]
 
         super(RssCrawler, self).__init__(*args, **kwargs)
@@ -87,8 +87,11 @@ class RssCrawler(scrapy.Spider):
             return
 
         yield self.helper.parse_crawler.pass_to_pipeline_if_article(
-            response, self.ignored_allowed_domain, self.original_url,
-            rss_title)
+            response,
+            self.helper.url_extractor.get_allowed_domain(response.meta.get("original_url", response.url)), 
+            self.original_url,
+            rss_title
+            )
 
     @staticmethod
     def only_extracts_articles():
