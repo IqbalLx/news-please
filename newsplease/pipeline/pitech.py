@@ -27,7 +27,8 @@ class MissingArticleExtractor:
             "cnbcindonesia.com": self._extract_cnbc,
             "antaranews.com": self._extract_antara,
             "tempo.co": self._extract_tempo,
-            "kumparan.com": self._extract_kumparan
+            "kumparan.com": self._extract_kumparan,
+            "liputan6.com": self._extract_liputan6,
         }
 
     def check_site(self, url):
@@ -64,6 +65,11 @@ class MissingArticleExtractor:
     def _extract_kumparan(item):
         item = MissingArticleExtractor._extract_by_xpath(item, xpath="//div[contains(@class, 'mlPYL')]")
         item['article_text'] = item['article_text'].replace('ADVERTISEMENT', ' ')
+        return item
+    
+    @staticmethod
+    def _extract_liputan6(item):
+        item = MissingArticleExtractor._extract_by_xpath(item, xpath="//div[contains(@class, 'article-content-body__item-page')]")
         return item
     
     @staticmethod
