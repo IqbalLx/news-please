@@ -1,3 +1,4 @@
+import os
 import re
 import json
 import requests
@@ -7,6 +8,8 @@ from copy import deepcopy
 from datetime import timedelta
 from dateutil.parser import parse
 from newspaper import Article
+import configparser
+from boto3 import Session
 
 try:
     import urllib.request as urllib2
@@ -39,8 +42,13 @@ class MissingArticleExtractor:
         return False, None
     
     @staticmethod
-    def _extract_by_xpath(item, xpath):
+    def _extract_by_xpath(item, xpath, fallback_xpath=None):
         article_text = item['spider_response'].xpath(xpath).extract()
+        if not article_text and fallback_xpath is not None:
+            article_text = item['spider_response'].xpath(fallback_xpath).extract()
+        
+        print(article_text)
+
         article_text = ' '.join(article_text)
         article_text = cleaner.do_cleaning(article_text)
         item['article_text'] = article_text
@@ -48,7 +56,11 @@ class MissingArticleExtractor:
     
     @staticmethod
     def _extract_kompas(item):
-        item = MissingArticleExtractor._extract_by_xpath(item, xpath="//*[@class='read__content']")
+        item = MissingArticleExtractor._extract_by_xpath(item, \
+            xpath="//*[@class='read__content']", \
+            fallback_xpath="//*[@class='artikel-baca']"
+            )
+
         return item
     
     @staticmethod
@@ -269,5 +281,33 @@ class CountCommentExtractor:
             count_comment = self._ensure_int(count_comment)
         
             item['count_comment'] = count_comment
+
+        return item
+
+class HtmlS3Storage:
+    def __init__(self):
+        aws_folder = "/home/ubuntu/.aws"
+        if not os.path.exists(aws_folder):
+            raise FileNotFoundError(f"AWS folder not found in {aws_folder}")
+        
+        creds = configparser.ConfigParser()
+        creds.read(f"{aws_folder}/credentials")
+        creds = creds['default']
+
+        session = Session(aws_access_key_id=creds['aws_access_key_id'],
+                    aws_secret_access_key=creds['aws_secret_access_key'])
+        s3 = session.resource('s3')
+        self.s3_session = s3.Bucket('rri-raw-data-files')
+
+    def process_item(self, item, spider):
+        source_domain = item['source_domain'].decode('utf-8')
+        filename = item['filename']
+        local_path = item['local_path']
+        year, month, day = item['article_publish_date'].split(' ')[0].split('-')
+        
+        S3_SAVE_DIR = "raw_articles"
+        key_object = f"{S3_SAVE_DIR}/{year}/{month}/{day}/{source_domain}/{filename}"
+
+        self.s3_session.upload_file(local_path, key_object, ExtraArgs={'ACL':'public-read'})
 
         return item

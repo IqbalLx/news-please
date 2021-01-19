@@ -52,14 +52,23 @@ class HtmlFileCrawler(scrapy.Spider):
         for filepath in self.start_urls:
             yield scrapy.Request(filepath, self.parse)
     
+    @staticmethod
+    def _parse_original_url(response):
+        original_url = response.xpath('//link[@rel="canonical"]/@href').extract_first()
+        if original_url is None:
+            original_url = response.xpath("//meta[@property='og:url']/@content").extract_first()
+
+        return original_url
+    
     def parse(self, response):
         """
         Passes the response to the pipeline.
 
         :param obj response: The scrapy response
-        """        
-        original_url = response.xpath('//link[@rel="canonical"]/@href').extract_first()
+        """
+        original_url = self._parse_original_url(response)
         response.meta['original_url'] = original_url
+        self.log.info(f"url: {original_url}")
         yield self.helper.parse_crawler.pass_to_pipeline(
             response,
             self.helper.url_extractor.get_allowed_domain(response.meta.get('original_url', response.url))
