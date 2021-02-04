@@ -47,7 +47,7 @@ class MissingArticleExtractor:
         if not article_text and fallback_xpath is not None:
             article_text = item['spider_response'].xpath(fallback_xpath).extract()
         
-        print(article_text)
+        # print(article_text)
 
         article_text = ' '.join(article_text)
         article_text = cleaner.do_cleaning(article_text)
@@ -123,13 +123,6 @@ class DateModifiedExtractor:
         YEARS = 10
         date_limit = timedelta(days=YEARS*365)
 
-        # print(publish_date)
-        # print(modified_date)
-        # print("="*5)
-        # print(type(publish_date))
-        # print(type(modified_date))
-        
-        
         if modified_date < publish_date - date_limit:
             return False
         
@@ -286,7 +279,7 @@ class CountCommentExtractor:
 
 class HtmlS3Storage:
     def __init__(self):
-        aws_folder = "/home/ubuntu/.aws"
+        aws_folder = "/home/jatimai/Documents/playground/old-server/.aws"
         if not os.path.exists(aws_folder):
             raise FileNotFoundError(f"AWS folder not found in {aws_folder}")
         
@@ -302,12 +295,12 @@ class HtmlS3Storage:
     def process_item(self, item, spider):
         source_domain = item['source_domain'].decode('utf-8')
         filename = item['filename']
-        local_path = item['local_path']
+        html_obj = item['spider_response'].body
         year, month, day = item['article_publish_date'].split(' ')[0].split('-')
         
         S3_SAVE_DIR = "raw_articles"
         key_object = f"{S3_SAVE_DIR}/{year}/{month}/{day}/{source_domain}/{filename}"
 
-        self.s3_session.upload_file(local_path, key_object, ExtraArgs={'ACL':'public-read'})
+        self.s3_session.put_object(Body=html_obj, Key=key_object, ACL='public-read')
 
         return item
