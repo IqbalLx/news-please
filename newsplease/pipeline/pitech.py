@@ -279,7 +279,7 @@ class CountCommentExtractor:
 
 class HtmlS3Storage:
     def __init__(self):
-        aws_folder = "/home/jatimai/Documents/playground/old-server/.aws"
+        aws_folder = "/home/ubuntu/.aws"
         if not os.path.exists(aws_folder):
             raise FileNotFoundError(f"AWS folder not found in {aws_folder}")
         
